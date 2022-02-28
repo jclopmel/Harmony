@@ -17,4 +17,9 @@ contract Ownable {
         require(owner == msg.sender);
         _;
     }
+
+    modifier onlyNotOwner {
+        require(msg.sender != owner, "Owner can not set bip ud");
+        _;
+    }
 }

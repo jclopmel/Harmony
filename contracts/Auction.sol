@@ -3,10 +3,11 @@
 
 pragma solidity 0.8.0;
 
-contract Auction {
-    
+import "./Ownable.sol";
+
+contract Auction is Ownable{
+
     // static
-    address public owner;
     uint256 public bidIncrement;
     uint256 public startBlock;
     uint256 public endBlock;
@@ -23,16 +24,17 @@ contract Auction {
     event LogWithdrawal(address withdrawer, address withdrawalAccount, uint256 amount);
     event LogCanceled();
 
-    constructor(address _owner, uint256 _bidIncrement, uint256 _startBlock, uint256 _endBlock, string memory _ntfHash) {
-        // require(_startBlock >= _endBlock);
-        // require(_startBlock < block.number);
-        // require(_owner == "");
-
-        owner = _owner;
+    // constructor()
+    constructor(uint256 _bidIncrement, uint256 _startBlock, uint256 _endBlock, string memory _ntfHash)
+    {
         bidIncrement = _bidIncrement;
+        // bidIncrement = 1;
         startBlock = _startBlock;
+        // startBlock = 1;
         endBlock = _endBlock;
+        // endBlock = 999;
         ntfHash = _ntfHash;
+        // ntfHash = "NFT 01";
     }
 
     function getHighestBid() public view returns (uint256)
@@ -46,42 +48,28 @@ contract Auction {
     * It calculates current bidder bid by total bid based on the current amount they've sent to the contract plus the new transaction value
     * if the user isn't willing to overbid the highest bid, transaction is not possible
     *
-    *
-    * To do: Separate this feature
     */
-    function placeBid() payable onlyAfterStart onlyBeforeEnd onlyNotCanceled onlyNotOwner public returns (bool success)
+    function placeBid() onlyNotOwner onlyAfterStart onlyBeforeEnd payable public returns (bool success)
     {
-        require(msg.value == 0);
+        require(msg.value > 0, "Bid has to be a positive value");
 
         uint256 newBid = fundsByBidder[msg.sender] + msg.value;
 
-        require(newBid <= highestBindingBid);
+        require(newBid > highestBindingBid, "Bid has to be higher then highest big value");
 
-        // grab the previous highest bid (before updating fundsByBidder, in case msg.sender is the
-        // highestBidder and is just increasing their maximum bid).
         uint256 highestBid = fundsByBidder[highestBidder];
 
         fundsByBidder[msg.sender] = newBid;
 
         if (newBid <= highestBid) {
-            // if the user has overbid the highestBindingBid but not the highestBid, we simply
-            // increase the highestBindingBid and leave highestBidder alone.
-
-            // note that this case is impossible if msg.sender == highestBidder because you can never
-            // bid less ETH than you've already bid.
-
             highestBindingBid = min(newBid + bidIncrement, highestBid);
         } else {
-            // if msg.sender is already the highest bidder, they must simply be wanting to raise
-            // their maximum bid, in which case we shouldn't increase the highestBindingBid.
-
-            // if the user is NOT highestBidder, and has overbid highestBid completely, we set them
-            // as the new highestBidder and recalculate highestBindingBid.
 
             if (msg.sender != highestBidder) {
                 highestBidder = msg.sender;
                 highestBindingBid = min(newBid, highestBid + bidIncrement);
             }
+
             highestBid = newBid;
         }
 
@@ -114,7 +102,7 @@ contract Auction {
     * the highest bidder should only be allowed to withdraw the difference between their highest bid and the highestBindingBid
     * anyone who participated but did not win the auction is  allowed to withdraw their funds
     */
-    function withdraw() onlyEndedOrCanceled public returns (bool success)
+    function withdraw() onlyEndedOrCanceled public payable returns (bool success)
     {
         address withdrawalAccount;
         uint256 withdrawalAmount;
@@ -140,49 +128,40 @@ contract Auction {
 
             } else {
                 withdrawalAccount = msg.sender;
+
                 withdrawalAmount = fundsByBidder[withdrawalAccount];
+
+                require(withdrawalAmount != 0, "You can not withdraw an empty amount");
+
+                payable(msg.sender).transfer(withdrawalAmount);
+                
+                fundsByBidder[withdrawalAccount] -= withdrawalAmount;
+
+                emit LogWithdrawal(msg.sender, withdrawalAccount, withdrawalAmount);
             }
         }
 
-        require(withdrawalAmount == 0);
-
-        fundsByBidder[withdrawalAccount] -= withdrawalAmount;
-
-        // send the funds
-        require(!msg.sender.send(withdrawalAmount));
-
-        emit LogWithdrawal(msg.sender, withdrawalAccount, withdrawalAmount);
 
         return true;
     }
 
-    modifier onlyOwner {
-        require(msg.sender != owner);
-        _;
-    }
-
-    modifier onlyNotOwner {
-        require(msg.sender == owner);
-        _;
-    }
-
     modifier onlyAfterStart {
-        require(block.number < startBlock);
+        require(block.number > startBlock, "Bid process has not started yet");
         _;
     }
 
     modifier onlyBeforeEnd {
-        require(block.number > endBlock);
+        require(block.number < endBlock, "Bid process has already finished");
         _;
     }
 
     modifier onlyNotCanceled {
-        require(canceled);
+        require(canceled, "Bid process has been canceled");
         _;
     }
 
     modifier onlyEndedOrCanceled {
-        require(block.number < endBlock && !canceled);
+        require(block.number > endBlock || canceled, "Bid process has not been canceled neither finished");
         _;
     }
 }
