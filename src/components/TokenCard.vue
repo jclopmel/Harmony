@@ -28,7 +28,7 @@
       <v-divider class="mx-4"></v-divider>
 
       <v-card-text class="text-right">
-        <v-text class="mr-3">Top bid:</v-text>
+        <v-label class="mr-3">Top bid:</v-label>
         <v-chip>
           <v-img
             max-height="15"

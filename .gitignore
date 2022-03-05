@@ -25,3 +25,4 @@ package-lock.json
 /nft/
 /contracts/artifacts/
 /contracts/.deps/
+/.deps/

@@ -6,9 +6,11 @@ npm install
 ```
 
 ### Compiles and hot-reloads for development
+1. Compiles and hot-reloads for development
 ```bash
 npm run serve
 ```
+2. 
 
 ### Once It is running...
 1. Create an ArtToken and get the baseUri to be provided for next step

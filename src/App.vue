@@ -2,20 +2,23 @@
   <v-app>
     <AppBar/>
     <v-main>
-      <Store/>
+      <router-view></router-view>  
+      <!-- <Store/> -->
     </v-main>
   </v-app>
 </template>
 
 <script>
-import Store from './components/Store';
+// import Dashboard from './components/Dashboard';
+// import Store from './components/Store';
 import AppBar from './components/AppBar';
 
 export default {
   name: 'App',
 
   components: {
-    Store,
+    // Dashboard,
+    // Store,
     AppBar,
   },
 
