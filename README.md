@@ -12,12 +12,14 @@ npm run serve
 
 ### Once It is running...
 1. Create an ArtToken and get the baseUri to be provided for next step
+
 2. Compile and deploy a new Auction. To be provided:
 - Owner address
 - Minimum auction bid incremental
 - Starting auction block
 - Ending auction block
 - artToken baseUri
+
 3. Possible actions to be triggered by the contract:
 - To bid
 - To cancel auction
