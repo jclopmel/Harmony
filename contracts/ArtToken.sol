@@ -21,4 +21,9 @@ contract ArtToken is NFTokenMetadata, Ownable {
     super._setTokenUri(index, _uri);
     index = index+1;
   }
+
+  function getLastIndex() public view returns (uint256)
+  {
+    return index;
+  }
 }
