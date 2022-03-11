@@ -26,4 +26,14 @@ contract ArtToken is NFTokenMetadata, Ownable {
   {
     return index;
   }
+
+  function getNftName() public view returns (string memory)
+  {
+    return nftName;
+  }
+
+  function getNftSymbol() public view returns (string memory)
+  {
+    return nftSymbol;
+  }
 }
