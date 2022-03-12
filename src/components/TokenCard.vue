@@ -14,14 +14,14 @@
 
       <v-img
         height="250"
-        :src=tokenName.img
+        :src=tokenName.url
       ></v-img>
 
       <v-card-title>{{tokenName.name}}</v-card-title>
 
       <v-card-text>
         <div>
-          Short description of the NFT exclusive value
+          {{tokenName.description}}
         </div>
       </v-card-text>
 
@@ -37,27 +37,33 @@
             class="mr-1"
           >
           </v-img>
-            {{ tokenName.currentBid }}
+            {{ tokenName.highestBid }}
         </v-chip>
       </v-card-text>
 
       <v-card-actions>
+        <v-btn
+          color="red lighten-3"
+          @click="placeBid(index)"
+        >
+          Bid
+        </v-btn>
         <v-btn
           color="teal lighten-2"
           block
           text
           @click="reserve"
         >
-        <v-progress-circular
-          class="mr-3"
-          :rotate="360"
-          :size="20"
-          :width="2"
-          color="teal"
-          :value="auctionEnds"
-        >
-          {{ auctionEnd }}
-        </v-progress-circular>
+          <v-progress-circular
+            class="mr-3"
+            :rotate="360"
+            :size="20"
+            :width="2"
+            color="teal"
+            :value="auctionEnds"
+          >
+            {{ ((tokenName.endBlock)/(60*60)).toFixed(0) }}
+          </v-progress-circular>
             hours left
         </v-btn>
       </v-card-actions>
@@ -73,14 +79,22 @@
     data: () => ({
       loading: false,
       selection: 1,
-      auctionEnd: 8,
       auctionEnds: 75,
       currentBid: 0.1,
     }),
     methods:{
-      reserve () {
-        console.log('Try Auction');
-      },
-    }
+      placeBid(index){		
+        var newAuctionObject = new this.web3.eth.Contract(Abis.contract_auction_abi, this.auctionCollection[index].contractAddress);
+        // Send Place Bid
+        newAuctionObject.methods.placeBid().send( {from: this.bidderAccount, gas: 300000, value: 2}, function(error, result){
+          if(!error){
+            console.log("placeBid:", result);
+          }
+          else
+            console.error("placeBid:", error);
+        });
+			  this.getHighestBid(newAuctionObject, index);
+      }
+		},
   }
 </script>
