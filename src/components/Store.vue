@@ -114,6 +114,9 @@
 						<v-btn color="red lighten-3" @click="cancelAuction(index)" >
 							Cancel!
 						</v-btn>
+						<v-btn color="green lighten-3" @click="withdraw(index)" >
+							withdraw
+						</v-btn>
 					</v-col>
 					<v-col xs="6">
 						<v-card-text class="text-right">
@@ -142,7 +145,7 @@
 							color="teal"
 							:value="75"
 						>
-							{{ ((auction.endBlock)/(60*60)).toFixed(0) }}
+							{{ ((auction.endBlock)/(60)).toFixed(0) }}
 						</v-progress-circular>
 						hours left
 					</v-btn>
@@ -269,11 +272,11 @@
 			var that=this;
 			this.ArtTokenInstance.methods.tokenURI(tokenIndex).call(function(error, result){
 				if(!error){
-						console.log("tokenUri: ", result);
-						that.nftCollection.push( result );
+					console.log("tokenUri: ", result);
+					that.nftCollection.push( result );
 				}
 				else
-						console.error("tokenUri error: ", error);
+					console.error("tokenUri error: ", error);
 			});
 		},
 		loadNFTByIndex(){
@@ -281,13 +284,19 @@
 		},
 		getNFTHash(auctionObject, index){
 			var that = this;
+			var decodedResult;
 			auctionObject.methods.ntfHash().call(function(error, result){
 			if(!error){
-				var decodedResult = JSON.parse(JSON.parse(result));
-
-				that.auctionCollection[index].name =  that.nftName+" | "+decodedResult.name;
-				that.auctionCollection[index].description = decodedResult.description;
-				that.auctionCollection[index].url = decodedResult.url;
+				try {
+					decodedResult = JSON.parse(JSON.parse(result));
+					
+					that.auctionCollection[index].name =  that.nftName+" | "+decodedResult.name;
+					that.auctionCollection[index].description = decodedResult.description;
+					that.auctionCollection[index].url = decodedResult.url;
+					
+				} catch (error) {
+					console.log("Fail in JSON format:", error, decodedResult)
+				}
 			}
 			else
 				console.error("ntfHash error: ", error);
@@ -320,6 +329,19 @@
 				console.error("bidIncrement error: ", error);
 			});
 
+		},
+		isCanceled(index){
+			var newAuctionObject = new this.web3.eth.Contract(Abis.contract_auction_abi, this.auctionCollection[index].contractAddress);
+
+			newAuctionObject.methods.canceled().call(function(error, result){
+
+				if(!error){
+					return result;
+				}
+				else{
+					console.error("canceled:", error);
+				}
+			});
 		},
 		placeBid(index){
 			var that = this;		
@@ -372,12 +394,23 @@
 		},
 		cancelAuction(index){
 			var newAuctionObject = new this.web3.eth.Contract(Abis.contract_auction_abi, this.auctionCollection[index].contractAddress);
-			// Send Place Bid
-			newAuctionObject.methods.cancelAuction().send( {from: this.artistAccount, gas: 300000}, function(error, result){
+			console.log("Canceling Auction:", this.auctionCollection[index].contractAddress)
+			newAuctionObject.methods.cancelAuction().send( {from: this.artistAccount,  gas: 3000000}, function(error, result){
 				if(!error){
 					console.log("cancelAuction:", result);
 				}else{
 					console.error("cancelAuction:", error);
+				}
+			});
+		},
+		withdraw(index){
+			var newAuctionObject = new this.web3.eth.Contract(Abis.contract_auction_abi, this.auctionCollection[index].contractAddress);
+
+			newAuctionObject.methods.withdraw().send( {from: this.bidderAccount, gas: 3000000, value: 1}, function(error, result){
+				if(!error){
+					console.log("withdraw success:", result);
+				}else{
+					console.error("withdraw failure:", error);
 				}
 			});
 		},
@@ -424,5 +457,5 @@
 			});
 		}
     }
-  }
+}
 </script>

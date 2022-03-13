@@ -17,15 +17,21 @@ contract AuctionFactory is Ownable{
         auctionIndex = 0;
     }
 
-    function createAuction(uint256 _bidIncrement, uint256 _startBlock, uint256 _endBlock, string memory _ntfHash) public
+    function createAuction(uint256 _bidIncrement, uint256 _startBlock, uint256 _endBlock, string memory _ntfHash) public returns (uint256)
     {
         auctionCollection[auctionIndex] = new Auction(_bidIncrement, _startBlock, _endBlock, _ntfHash);
         auctionIndex = auctionIndex+1;
+        return auctionIndex-1;
     }
 
     function getaActionByIndex(uint256 index) public view returns (Auction)
     {
         return auctionCollection[index];
+    }
+
+    function getLastIndex() public view returns (uint256)
+    {
+        return auctionIndex;
     }
 
 }

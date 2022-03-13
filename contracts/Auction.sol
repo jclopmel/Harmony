@@ -156,7 +156,7 @@ contract Auction is Ownable{
     }
 
     modifier onlyNotCanceled {
-        require(canceled, "Bid process has been canceled");
+        require(!canceled, "Bid process has been canceled");
         _;
     }
 

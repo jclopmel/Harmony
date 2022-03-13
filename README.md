@@ -12,7 +12,7 @@ npm install
 ```bash
 npm run serve
 ```
-2. 
+
 
 ### Once It is running...
 1. Compile and deploy next contracts in your network to start working with the project:
@@ -29,6 +29,8 @@ npm run serve
 - To see next parameters from the Auction: name, highest bid, bid left time
 - Both are accesible by unique incremental index or their contract addresses
 - To bid individually per Auction
+- To check the is_cancel status from each Auction
+- To withdraw bid feature si added
 
 ### Compiles and minifies for production
 ```
