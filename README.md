@@ -17,7 +17,6 @@ npm run serve
 ### Once It is running...
 1. Compile and deploy next contracts in your network to start working with the project:
 - ArtToken.sol
-- AuctionToken.sol
 - FactoryAuction.sol
 
 2. Fill in result contract addresses once deployed, to interact with them in /src/address.js file.

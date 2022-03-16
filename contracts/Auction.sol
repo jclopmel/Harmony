@@ -28,13 +28,9 @@ contract Auction is Ownable{
     constructor(uint256 _bidIncrement, uint256 _startBlock, uint256 _endBlock, string memory _ntfHash)
     {
         bidIncrement = _bidIncrement;
-        // bidIncrement = 1;
         startBlock = _startBlock;
-        // startBlock = 1;
         endBlock = _endBlock;
-        // endBlock = 999;
         ntfHash = _ntfHash;
-        // ntfHash = "NFT 01";
     }
 
     function getHighestBid() public view returns (uint256)

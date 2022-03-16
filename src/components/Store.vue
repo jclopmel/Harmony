@@ -95,7 +95,6 @@
 					height="250"
 					:src=auction.url
 				></v-img>
-
 				<v-card-title>{{auction.name}}</v-card-title>
 
 				<v-card-text>
